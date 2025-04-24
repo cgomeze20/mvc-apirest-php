@@ -9,7 +9,14 @@ class UsuarioController extends Controller
 {
 
     public function index(){
-        return $this->view("usuarios");
+
+        $usuario = new Usuario();
+        $usuarios = $usuario->All();
+
+        return $this->view("usuarios",[
+            "title"=>"Usuarios",
+            "usuarios"=>$usuarios
+        ]);
     }
 
     public function save(){
