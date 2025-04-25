@@ -68,6 +68,15 @@ class Model
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
+        public function FindByEmail($email):bool
+    {
+        $sql = "SELECT * FROM {$this->table} Where email = :email";
+        $stmt = $this->connection->prepare($sql);
+        $stmt->bindParam(":email", $email);
+        $stmt->execute();
+        return $stmt->rowCount() > 0;
+    }
+
     public function Where($column, $operator, $value = null)
     {
         if ($value == null) {

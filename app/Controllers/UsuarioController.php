@@ -28,10 +28,10 @@ class UsuarioController extends Controller
     public function save(){
         //Read data from frontend
         $data = json_decode(file_get_contents("php://input"),true);
+        header("Content-type: application/json");
         
         $auth = AuthController::validateAuth();
         if(!$auth){
-            header("Content-type: application/json");
             echo json_encode(array("ok"=>false, "message"=>"user no authenticated", "session"=> $_SESSION['username']));
             return;
         }
@@ -40,6 +40,14 @@ class UsuarioController extends Controller
         $data['password'] = $passwordHashed;
 
         $usuario = new Usuario();
+
+        $existEmail = $usuario->FindByEmail($data['email']);
+
+        if($existEmail){
+            echo json_encode(array("ok"=>false, "message"=> "Ya existe un usuario con este email"));
+            return;
+        }
+
         return $usuario->create($data);
     }
 
