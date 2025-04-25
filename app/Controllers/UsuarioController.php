@@ -32,7 +32,7 @@ class UsuarioController extends Controller
         
         $auth = AuthController::validateAuth();
         if(!$auth){
-            echo json_encode(array("ok"=>false, "message"=>"user no authenticated", "session"=> $_SESSION['username']));
+            echo json_encode(array("ok"=>false, "message"=>"user no authenticated"));
             return;
         }
 
@@ -56,6 +56,12 @@ class UsuarioController extends Controller
         $id = json_decode(file_get_contents("php://input"),true);
 
         extract($id);
+
+        $auth = AuthController::validateAuth();
+        if(!$auth){
+            echo json_encode(array("ok"=>false, "message"=>"user no authenticated"));
+            return;
+        }
 
         $usuario = new Usuario();
         $item = $usuario->Find($id);
@@ -93,6 +99,12 @@ class UsuarioController extends Controller
 
     public function update(){
         $data = json_decode(file_get_contents("php://input"),true);
+
+        $auth = AuthController::validateAuth();
+        if(!$auth){
+            echo json_encode(array("ok"=>false, "message"=>"user no authenticated"));
+            return;
+        }
 
         $passwordHashed = password_hash($data['password'], PASSWORD_BCRYPT);
         $data['password'] = $passwordHashed;
