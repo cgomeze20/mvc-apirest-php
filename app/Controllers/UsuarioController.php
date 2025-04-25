@@ -67,7 +67,7 @@ class UsuarioController extends Controller
         }
     }
 
-    public function actualizar(){
+    public function update(){
         $data = json_decode(file_get_contents("php://input"),true);
 
         $usuario = new Usuario();

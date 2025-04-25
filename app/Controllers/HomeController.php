@@ -10,7 +10,8 @@ class HomeController extends Controller
     public function index()
     {
         return $this->view('home',[
-            "title" => "Home"
+            "title" => "Home",
+            "description"=> "Description de la página"
         ]);
     }
 

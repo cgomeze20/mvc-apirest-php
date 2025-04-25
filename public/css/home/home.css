@@ -1,0 +1,13 @@
+.titulo-home{
+    color: blue;
+}
+
+h2{
+    color: green;
+}
+
+img{
+    width: 9rem;
+    height: 9rem;
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.3);
+}

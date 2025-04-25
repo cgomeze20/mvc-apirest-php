@@ -1,3 +1,9 @@
+<?php
+
+include_once "../utils/renderUsuarios.php";
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,9 +14,7 @@
 <body>
     <h1>Usuarios</h1>
 
-    <?php foreach ($usuarios as $value) : ?>
-        <li> <?= htmlspecialchars($value["nombre"]). ' *** ' .htmlspecialchars($value['apellido']). ' *** ' .htmlspecialchars($value['email']); ?> </li>
-    <?php endforeach; ?>
+    <?= renderUsuarios($usuarios); ?>
 
 </body>
 </html>
