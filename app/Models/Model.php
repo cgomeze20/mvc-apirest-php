@@ -53,8 +53,6 @@ class Model
         return $this->queries->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    //Consultas
-
     public function All()
     {
         $sql = "SELECT * FROM {$this->table}";
@@ -63,8 +61,11 @@ class Model
 
     public function Find($id)
     {
-        $sql = "SELECT * FROM {$this->table} Where id = {$id}";
-        return $this->query($sql)->getOne();
+        $sql = "SELECT * FROM {$this->table} Where id = :id";
+        $stmt = $this->connection->prepare($sql);
+        $stmt->bindParam(":id", $id);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
     public function Where($column, $operator, $value = null)
@@ -74,21 +75,29 @@ class Model
             $operator = "=";
         }
 
-        $sql = "SELECT * FROM {$this->table} WHERE {$column} {$operator} '{$value}'";
-        $this->query($sql);
-        return $this;
+        $sql = "SELECT * FROM {$this->table} WHERE {$column} {$operator} :value";
+        $stmt = $this->connection->prepare($sql);
+        $stmt->bindParam(":value", $value);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     public function create($data)
     {
         $columns = array_keys($data);
-        $columns = implode(', ', $columns);
+        $columnsList = implode(', ', $columns);
 
-        $values = array_values($data);
-        $values = "'" . implode("', '", $values) . "'";
+        $placeholders = ':' . implode(', :', $columns);
 
-        $sql = "INSERT INTO {$this->table} ({$columns}) VALUES ({$values})";
-        $this->query($sql);
+        $sql = "INSERT INTO {$this->table} ({$columnsList}) VALUES ({$placeholders})";
+        $stmt = $this->connection->prepare($sql);
+
+        foreach ($data as $key => $value) {
+            $stmt->bindParam(":$key", $data[$key]);
+        }
+
+        $stmt->execute();
+
         $insert_id = $this->connection->lastInsertId();
         return $this->Find($insert_id);
     }
@@ -97,19 +106,28 @@ class Model
     {
         $fields = [];
         foreach ($data as $key => $value) {
-            $fields[] = " {$key} = '{$value}' ";
+            $fields[] = "{$key} = :{$key}";
         }
 
-        $fields = implode(', ', $fields);
+        $fieldsList = implode(', ', $fields);
 
-        $sql = "UPDATE {$this->table} SET {$fields} WHERE id = {$id}";
-        $this->query($sql);
+        $sql = "UPDATE {$this->table} SET {$fieldsList} WHERE id = :id";
+        $stmt = $this->connection->prepare($sql);
+
+        foreach ($data as $key => $value) {
+            $stmt->bindParam(":$key", $data[$key]);
+        }
+        $stmt->bindParam(":id", $id);
+        $stmt->execute();
+
         return $this->Find($id);
     }
 
     public function Delete($id)
     {
-        $sql = "DELETE FROM {$this->table} WHERE id = {$id}";
-        return $this->query($sql);
+        $sql = "DELETE FROM {$this->table} WHERE id = :id";
+        $stmt = $this->connection->prepare($sql);
+        $stmt->bindParam(":id", $id);
+        return $stmt->execute();
     }
 }

@@ -10,6 +10,12 @@ class UsuarioController extends Controller
 
     public function index(){
 
+        // Validate Authentication
+        $auth = AuthController::validateAuth();
+        if(!$auth){
+            header('Location: /');
+        }
+
         $usuario = new Usuario();
         $usuarios = $usuario->All();
 
@@ -22,6 +28,16 @@ class UsuarioController extends Controller
     public function save(){
         //Read data from frontend
         $data = json_decode(file_get_contents("php://input"),true);
+        
+        $auth = AuthController::validateAuth();
+        if(!$auth){
+            header("Content-type: application/json");
+            echo json_encode(array("ok"=>false, "message"=>"user no authenticated", "session"=> $_SESSION['username']));
+            return;
+        }
+
+        $passwordHashed = password_hash($data['password'], PASSWORD_BCRYPT);
+        $data['password'] = $passwordHashed;
 
         $usuario = new Usuario();
         return $usuario->create($data);
@@ -69,6 +85,9 @@ class UsuarioController extends Controller
 
     public function update(){
         $data = json_decode(file_get_contents("php://input"),true);
+
+        $passwordHashed = password_hash($data['password'], PASSWORD_BCRYPT);
+        $data['password'] = $passwordHashed;
 
         $usuario = new Usuario();
         $result =  $usuario->Update($data['id'], $data);
